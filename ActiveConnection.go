@@ -95,7 +95,7 @@ func (a *activeConnection) GetDevices() []Device {
 	devices := make([]Device, len(paths))
 	var err error
 	for i, path := range paths {
-		devices[i], err = NewDevice(path)
+		devices[i], err = DeviceFactory(path)
 		if err != nil {
 			panic(err)
 		}
@@ -141,7 +141,7 @@ func (a *activeConnection) GetVPN() bool {
 
 func (a *activeConnection) GetMaster() Device {
 	path := a.getObjectProperty(ActiveConnectionProperyMaster)
-	r, err := NewDevice(path)
+	r, err := DeviceFactory(path)
 	if err != nil {
 		panic(err)
 	}
