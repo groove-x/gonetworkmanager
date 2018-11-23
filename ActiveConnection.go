@@ -8,8 +8,8 @@ const (
 	ActiveConnectionInterface             = NetworkManagerInterface + ".Connection.Active"
 	ActiveConnectionProperyConnection     = ActiveConnectionInterface + ".Connection"
 	ActiveConnectionProperySpecificObject = ActiveConnectionInterface + ".SpecificObject"
-	ActiveConnectionProperyId             = ActiveConnectionInterface + ".Id"
-	ActiveConnectionProperyUuid           = ActiveConnectionInterface + ".Uuid"
+	ActiveConnectionProperyID             = ActiveConnectionInterface + ".Id"
+	ActiveConnectionProperyUUID           = ActiveConnectionInterface + ".Uuid"
 	ActiveConnectionProperyType           = ActiveConnectionInterface + ".Type"
 	ActiveConnectionProperyDevices        = ActiveConnectionInterface + ".Devices"
 	ActiveConnectionProperyState          = ActiveConnectionInterface + ".State"
@@ -18,7 +18,7 @@ const (
 	ActiveConnectionProperyIP4Config      = ActiveConnectionInterface + ".Ip4Config"
 	ActiveConnectionProperyDHCP4Config    = ActiveConnectionInterface + ".Dhcp4Config"
 	ActiveConnectionProperyDefault6       = ActiveConnectionInterface + ".Default6"
-	ActiveConnectionProperyVpn            = ActiveConnectionInterface + ".Vpn"
+	ActiveConnectionProperyVPN            = ActiveConnectionInterface + ".Vpn"
 	ActiveConnectionProperyMaster         = ActiveConnectionInterface + ".Master"
 )
 
@@ -45,7 +45,7 @@ type ActiveConnection interface {
 	GetStateFlags() uint32
 
 	// GetDefault gets the default IPv4 flag of the connection.
-	GetDefault() uint32
+	GetDefault() bool
 
 	// GetIP4Config gets the IP4Config of the connection.
 	GetIP4Config() IP4Config
@@ -54,7 +54,7 @@ type ActiveConnection interface {
 	GetDHCP4Config() DHCP4Config
 
 	// GetVPN gets the VPN flag of the connection.
-	GetVPN() uint32
+	GetVPN() bool
 
 	// GetMaster gets the master device of the connection.
 	GetMaster() Device
@@ -79,45 +79,71 @@ func (a *activeConnection) GetConnection() Connection {
 }
 
 func (a *activeConnection) GetID() string {
-	return ""
+	return a.getStringProperty(ActiveConnectionProperyID)
 }
 
 func (a *activeConnection) GetUUID() string {
-	return ""
+	return a.getStringProperty(ActiveConnectionProperyUUID)
 }
 
 func (a *activeConnection) GetType() string {
-	return ""
+	return a.getStringProperty(ActiveConnectionProperyType)
 }
 
 func (a *activeConnection) GetDevices() []Device {
-	return nil
+	paths := a.getSliceObjectProperty(ActiveConnectionProperyDevices)
+	devices := make([]Device, len(paths))
+	var err error
+	for i, path := range paths {
+		devices[i], err = NewDevice(path)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return devices
 }
 
 func (a *activeConnection) GetState() uint32 {
-	return 0
+	return a.getUint32Property(ActiveConnectionProperyState)
 }
 
 func (a *activeConnection) GetStateFlags() uint32 {
-	return 0
+	return a.getUint32Property(ActiveConnectionProperyStateFlags)
 }
 
-func (a *activeConnection) GetDefault() uint32 {
-	return 0
+func (a *activeConnection) GetDefault() bool {
+	b := a.getProperty(ActiveConnectionProperyDefault)
+	return b.(bool)
 }
 
 func (a *activeConnection) GetIP4Config() IP4Config {
-	return nil
+	path := a.getObjectProperty(ActiveConnectionProperyIP4Config)
+	r, err := NewIP4Config(path)
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
 
 func (a *activeConnection) GetDHCP4Config() DHCP4Config {
-	return nil
+	path := a.getObjectProperty(ActiveConnectionProperyDHCP4Config)
+	r, err := NewDHCP4Config(path)
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
 
-func (a *activeConnection) GetVPN() uint32 {
-	return 0
+func (a *activeConnection) GetVPN() bool {
+	ret := a.getProperty(ActiveConnectionProperyVPN)
+	return ret.(bool)
 }
 
 func (a *activeConnection) GetMaster() Device {
-	return nil
+	path := a.getObjectProperty(ActiveConnectionProperyMaster)
+	r, err := NewDevice(path)
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
