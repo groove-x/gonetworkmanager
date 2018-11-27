@@ -26,6 +26,9 @@ type ActiveConnection interface {
 	// GetConnection gets connection object of the connection.
 	GetConnection() Connection
 
+	// GetSpecificObject gets a specific object associated with the active connection.
+	GetSpecificObject() AccessPoint
+
 	// GetID gets the ID of the connection.
 	GetID() string
 
@@ -76,6 +79,15 @@ func (a *activeConnection) GetConnection() Connection {
 		panic(err)
 	}
 	return con
+}
+
+func (a *activeConnection) GetSpecificObject() AccessPoint {
+	path := a.getObjectProperty(ActiveConnectionProperySpecificObject)
+	ap, err := NewAccessPoint(path)
+	if err != nil {
+		panic(err)
+	}
+	return ap
 }
 
 func (a *activeConnection) GetID() string {
